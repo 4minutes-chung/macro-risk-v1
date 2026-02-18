@@ -7,3 +7,6 @@ __pycache__/
 
 # Notebook cache
 .ipynb_checkpoints/
+
+# Editor settings
+.vscode/

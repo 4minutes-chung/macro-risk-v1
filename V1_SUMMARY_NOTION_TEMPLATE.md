@@ -12,11 +12,11 @@
 3. **Q21-Q80 (5-20 years):** Scenario overlays (Baseline, Mild Adverse, Severe Adverse, Demographic Low Growth).
 
 ## 3. What V1 Produces
-- Full scenario table: `outputs/macro_engine/macro_forecast_paths.csv`
-- Short-horizon intervals: `outputs/macro_engine/macro_forecast_short_horizon_intervals.csv`
-- Diagnostics: `outputs/macro_engine/macro_model_diagnostics.json`
-- Anchor assumptions snapshot: `outputs/macro_engine/macro_anchor_assumptions.json`
-- PD sample export: `outputs/macro_engine/pd_macro_subset_sample.csv` + `.json`
+- Full scenario table: `outputs/macro_forecast_paths.csv`
+- Short-horizon intervals: `outputs/macro_forecast_short_horizon_intervals.csv`
+- Diagnostics: `outputs/macro_model_diagnostics.json`
+- Anchor assumptions snapshot: `outputs/macro_anchor_assumptions.json`
+- PD sample export: `outputs/pd_macro_subset_sample.csv` + `.json`
 
 ## 4. Key V1 Files
 - Data build: `scripts/fetch_macro_panel_fred.py`
@@ -74,4 +74,3 @@
 ### P3 - Runtime consistency/hygiene gaps
 - README uses `python3`, `run_all.sh` uses `python`.
 - No `.gitignore` baseline for OS/cache junk.
-

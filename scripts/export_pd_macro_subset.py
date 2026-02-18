@@ -41,17 +41,17 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Export PD-ready macro subset.")
     parser.add_argument(
         "--input",
-        default="outputs/macro_engine/macro_forecast_paths.csv",
+        default="outputs/macro_forecast_paths.csv",
         help="Path to macro_forecast_paths.csv",
     )
     parser.add_argument(
         "--output-csv",
-        default="outputs/macro_engine/pd_macro_subset_sample.csv",
+        default="outputs/pd_macro_subset_sample.csv",
         help="Output CSV path.",
     )
     parser.add_argument(
         "--output-json",
-        default="outputs/macro_engine/pd_macro_subset_sample.json",
+        default="outputs/pd_macro_subset_sample.json",
         help="Output JSON path.",
     )
     parser.add_argument(
@@ -86,4 +86,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

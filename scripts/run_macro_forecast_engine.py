@@ -8,7 +8,7 @@ Run a rigorous macro forecasting engine:
 Inputs:
 - data/macro_panel_quarterly_model.csv (transformed quarterly panel)
 
-Outputs (under outputs/macro_engine by default):
+Outputs (under outputs by default):
 - macro_forecast_paths.csv
 - macro_forecast_short_horizon_intervals.csv
 - macro_model_diagnostics.json
@@ -46,7 +46,7 @@ def parse_args():
     )
     parser.add_argument(
         "--output-dir",
-        default="outputs/macro_engine",
+        default="outputs",
         help="Output directory for forecast artifacts.",
     )
     return parser.parse_args()

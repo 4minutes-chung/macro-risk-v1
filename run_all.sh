@@ -11,9 +11,9 @@ python scripts/fetch_macro_panel_fred.py \
 
 python scripts/run_macro_forecast_engine.py \
   --config macro_engine_config.json \
-  --output-dir outputs/macro_engine
+  --output-dir outputs
 
 python scripts/export_pd_macro_subset.py \
-  --input outputs/macro_engine/macro_forecast_paths.csv \
-  --output-csv outputs/macro_engine/pd_macro_subset_sample.csv \
-  --output-json outputs/macro_engine/pd_macro_subset_sample.json
+  --input outputs/macro_forecast_paths.csv \
+  --output-csv outputs/pd_macro_subset_sample.csv \
+  --output-json outputs/pd_macro_subset_sample.json

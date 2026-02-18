@@ -31,7 +31,7 @@ credit risk models (PD/LGD). It is \emph{not} the PD model itself; it produces t
 \begin{itemize}
   \item \texttt{scripts/}: runnable programs that fetch data and generate forecasts.
   \item \texttt{data/}: the cleaned quarterly dataset used by the models.
-  \item \texttt{outputs/macro\_engine/}: all generated forecast outputs.
+  \item \texttt{outputs/}: all generated forecast outputs.
   \item \texttt{macro\_engine\_config.json}: configuration for model horizons, variables, and scenarios.
   \item \texttt{macro\_engine\_schema.md}: column definitions and units.
   \item \texttt{README\_MACRO\_ENGINE.md}: run instructions + auto-synced schema.
@@ -89,28 +89,28 @@ The PD subset CSV/JSON provides a smaller set of key variables with unit and tra
 
 \section{How others use it}
 \begin{itemize}
-  \item Share the \texttt{outputs/macro\_engine/} directory plus \texttt{macro\_engine\_schema.md}.
+  \item Share the \texttt{outputs/} directory plus \texttt{macro\_engine\_schema.md}.
   \item Run \texttt{run\_all.sh} (or the underlying scripts) inside the folder to regenerate the panel and forecasts.
   \item Drop the PD subset CSV into IFRS/Basel pipelines; the schema indicates which fields are YoY (\%) versus levels.
 \end{itemize}
 
 \section{What gets produced}
 \begin{itemize}
-  \item \texttt{outputs/macro\_engine/macro\_forecast\_paths.csv}:
+  \item \texttt{outputs/macro\_forecast\_paths.csv}:
         the full 20-year forecast for every variable and scenario.
-  \item \texttt{outputs/macro\_engine/macro\_forecast\_short\_horizon\_intervals.csv}:
+  \item \texttt{outputs/macro\_forecast\_short\_horizon\_intervals.csv}:
         near-term uncertainty bands (5/50/95 percentiles).
-  \item \texttt{outputs/macro\_engine/macro\_model\_diagnostics.json}:
+  \item \texttt{outputs/macro\_model\_diagnostics.json}:
         model settings and stability checks.
-  \item \texttt{outputs/macro\_engine/macro\_anchor\_assumptions.json}:
+  \item \texttt{outputs/macro\_anchor\_assumptions.json}:
         long-run anchors used to guide the forecast.
-  \item \texttt{outputs/macro\_engine/macro\_impulse\_responses.csv}:
+  \item \texttt{outputs/macro\_impulse\_responses.csv}:
         impulse responses used for interpretation.
-  \item \texttt{outputs/macro\_engine/pd\_macro\_subset\_sample.csv}:
+  \item \texttt{outputs/pd\_macro\_subset\_sample.csv}:
         a small PD-ready file with key macro variables.
-  \item \texttt{outputs/macro\_engine/pd\_macro\_subset\_sample.json}:
+  \item \texttt{outputs/pd\_macro\_subset\_sample.json}:
         units and transformations for the PD subset.
-  \item \texttt{outputs/macro\_engine/bvar\_oos\_backtest\_table.csv}:
+  \item \texttt{outputs/bvar\_oos\_backtest\_table.csv}:
         out-of-sample BVAR forecast evaluation table (RMSE/MAE/coverage/DM).
 \end{itemize}
 
@@ -144,7 +144,7 @@ For each variable and horizon, the backtest table reports:
 
 \subsection*{How it was executed in this session}
 The backtest was run and verified, with output written to:
-\texttt{outputs/macro\_engine/bvar\_oos\_backtest\_table.csv}.
+\texttt{outputs/bvar\_oos\_backtest\_table.csv}.
 The latest verified run used the benchmark variable set with short runtime settings
 (\texttt{--max-origins 8 --origin-stride 2 --interval-sims 10}), producing an 8-origin,
 12-variable, 8-horizon table.
@@ -175,7 +175,7 @@ containing values for each macro variable (e.g., unemployment, inflation, house-
 
 \section{How to share this with a PD team}
 \begin{enumerate}
-  \item Share the full folder, or at minimum \texttt{outputs/macro\_engine/}.
+  \item Share the full folder, or at minimum \texttt{outputs/}.
   \item Point them to \texttt{pd\_macro\_subset\_sample.csv} and its JSON metadata.
   \item If they need the full set of variables, use \texttt{macro\_forecast\_paths.csv}.
 \end{enumerate}

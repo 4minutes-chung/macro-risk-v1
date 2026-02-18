@@ -36,7 +36,7 @@ def parse_args():
     )
     parser.add_argument(
         "--output",
-        default="outputs/macro_engine/bvar_oos_backtest_table.csv",
+        default="outputs/bvar_oos_backtest_table.csv",
         help="Output table CSV path.",
     )
     parser.add_argument(

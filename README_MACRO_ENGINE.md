@@ -22,15 +22,15 @@ python3 scripts/fetch_macro_panel_fred.py \
 
 python3 scripts/run_macro_forecast_engine.py \
   --config macro_engine_config.json \
-  --output-dir outputs/macro_engine
+  --output-dir outputs
 ```
 
 ## Outputs
-- `outputs/macro_engine/macro_forecast_paths.csv`
-- `outputs/macro_engine/macro_forecast_short_horizon_intervals.csv`
-- `outputs/macro_engine/macro_model_diagnostics.json`
-- `outputs/macro_engine/macro_anchor_assumptions.json`
-- `outputs/macro_engine/macro_impulse_responses.csv`
+- `outputs/macro_forecast_paths.csv`
+- `outputs/macro_forecast_short_horizon_intervals.csv`
+- `outputs/macro_model_diagnostics.json`
+- `outputs/macro_anchor_assumptions.json`
+- `outputs/macro_impulse_responses.csv`
 
 ## Schema (Auto-synced)
 <!-- SCHEMA:START -->
@@ -84,3 +84,10 @@ python3 scripts/sync_schema_to_readme.py --schema macro_engine_schema.md --readm
   - `Demographic_LowGrowth`
 - VAR is estimated on a stable benchmark subset.
 - BVAR runs on full variable set and is used for short-horizon production path when configured.
+
+## GitHub Portfolio Publish
+```bash
+git add .
+git commit -m "update v1 portfolio package"
+git push origin main
+```
