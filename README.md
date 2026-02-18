@@ -1,4 +1,4 @@
-# Macro Engine Run Guide
+# Macro Engine V1
 
 ## Purpose
 - Forecast a 20-year quarterly U.S. macro path for PD/LGD inputs.
@@ -32,7 +32,7 @@ python3 scripts/run_macro_forecast_engine.py \
 - `outputs/macro_anchor_assumptions.json`
 - `outputs/macro_impulse_responses.csv`
 
-## Schema (Auto-synced)
+## SchemA
 <!-- SCHEMA:START -->
 
 | Column | Type | Units | Description | Source/Transform |
