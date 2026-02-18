@@ -1,5 +1,5 @@
 {
-  "source_file": "outputs/macro_engine/macro_forecast_paths.csv",
+  "source_file": "outputs/macro_forecast_paths.csv",
   "fields": [
     "unemployment_rate",
     "hpi_growth_yoy",

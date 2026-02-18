@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sync macro_engine_schema.md table into README_MACRO_ENGINE.md between markers.
+Sync macro_engine_schema.md table into README.md between markers.
 """
 
 import argparse
@@ -14,7 +14,7 @@ END_MARK = "<!-- SCHEMA:END -->"
 def parse_args():
     parser = argparse.ArgumentParser(description="Sync schema table into README.")
     parser.add_argument("--schema", default="macro_engine_schema.md", help="Schema markdown file.")
-    parser.add_argument("--readme", default="README_MACRO_ENGINE.md", help="README to update.")
+    parser.add_argument("--readme", default="README.md", help="README to update.")
     return parser.parse_args()
 
 
@@ -67,4 +67,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

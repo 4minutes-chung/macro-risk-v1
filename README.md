@@ -73,7 +73,7 @@ python3 scripts/run_macro_forecast_engine.py \
 
 ## Sync instructions (for you)
 ```bash
-python3 scripts/sync_schema_to_readme.py --schema macro_engine_schema.md --readme README_MACRO_ENGINE.md
+python3 scripts/sync_schema_to_readme.py --schema macro_engine_schema.md --readme README.md
 ```
 
 ## Notes
