@@ -4,12 +4,14 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 
-\title{Macro Risk Forecasting Package: Plain-Language Report}
+\title{Macro Risk Forecasting Package V1: Plain-Language Report}
 \author{}
 \date{\today}
 
 \begin{document}
 \maketitle
+
+\noindent\textbf{Version note:} This document describes the V1 baseline prototype. It is designed for transparent portfolio documentation and iterative model improvement.
 
 \section{What this folder is}
 This folder contains a complete, runnable macroeconomic forecasting package.
@@ -108,7 +110,44 @@ The PD subset CSV/JSON provides a smaller set of key variables with unit and tra
         a small PD-ready file with key macro variables.
   \item \texttt{outputs/macro\_engine/pd\_macro\_subset\_sample.json}:
         units and transformations for the PD subset.
+  \item \texttt{outputs/macro\_engine/bvar\_oos\_backtest\_table.csv}:
+        out-of-sample BVAR forecast evaluation table (RMSE/MAE/coverage/DM).
 \end{itemize}
+
+\section{New addition: BVAR out-of-sample backtest}
+To quantify short-horizon forecasting power, we added a dedicated rolling out-of-sample BVAR backtest script:
+\texttt{scripts/backtest\_bvar\_oos.py}.
+
+\subsection*{Backtest design}
+\begin{itemize}
+  \item Rolling-origin pseudo out-of-sample evaluation on the quarterly model panel.
+  \item Forecast horizons: 1 to 8 quarters.
+  \item Default benchmark comparison: random walk (last observation carried forward).
+  \item Two variable modes:
+    \begin{itemize}
+      \item \texttt{benchmark} (12 variables, fast).
+      \item \texttt{full} (28 variables, slower).
+    \end{itemize}
+  \item Optional simulation-based 90\% interval coverage using predictive draws.
+\end{itemize}
+
+\subsection*{Metrics in the table}
+For each variable and horizon, the backtest table reports:
+\begin{itemize}
+  \item \texttt{rmse\_bvar}: root mean squared error of BVAR forecasts.
+  \item \texttt{mae\_bvar}: mean absolute error of BVAR forecasts.
+  \item \texttt{coverage\_90\_bvar}: empirical coverage of the BVAR 90\% interval.
+  \item \texttt{rmse\_rw}: RMSE of random-walk benchmark forecasts.
+  \item \texttt{dm\_stat\_bvar\_minus\_rw\_mse}: Diebold-Mariano-style test statistic using squared-error loss differential.
+  \item \texttt{dm\_pvalue\_two\_sided}: two-sided p-value for whether BVAR and random walk have equal predictive loss.
+\end{itemize}
+
+\subsection*{How it was executed in this session}
+The backtest was run and verified, with output written to:
+\texttt{outputs/macro\_engine/bvar\_oos\_backtest\_table.csv}.
+The latest verified run used the benchmark variable set with short runtime settings
+(\texttt{--max-origins 8 --origin-stride 2 --interval-sims 10}), producing an 8-origin,
+12-variable, 8-horizon table.
 
 \section{How to run everything (one command)}
 Run the entire pipeline from the top folder:
@@ -146,6 +185,8 @@ containing values for each macro variable (e.g., unemployment, inflation, house-
   \item This package forecasts macro variables only; it does not build or calibrate PD models.
   \item Long-run outcomes are anchored on explicit assumptions; these can be edited in \texttt{macro\_engine\_config.json}.
   \item Data is pulled from public sources (FRED); revisions can change results slightly over time.
+  \item Scenario start timing in V1 is one quarter late versus configured start quarter (known issue planned for next patch).
+  \item Backtest evidence in V1 is limited and should be treated as directional, not conclusive, until larger out-of-sample runs are enforced in pipeline.
 \end{itemize}
 
 \end{document}
