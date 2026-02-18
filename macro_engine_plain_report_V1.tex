@@ -4,14 +4,14 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 
-\title{Macro Risk Forecasting Package V1: Plain-Language Report}
+\title{Macro Risk Forecasting Package V1: Technical Overview}
 \author{}
 \date{\today}
 
 \begin{document}
 \maketitle
 
-\noindent\textbf{Version note:} This document describes the V1 baseline prototype. It is designed for transparent portfolio documentation and iterative model improvement.
+\noindent\textbf{Version note:} This document describes the V1 baseline prototype for portfolio documentation and iterative model improvement.
 
 \section{What this folder is}
 This folder contains a complete, runnable macroeconomic forecasting package.
@@ -27,7 +27,7 @@ credit risk models (PD/LGD). It is \emph{not} the PD model itself; it produces t
   \item Export a small, PD-ready CSV with units and transformation labels.
 \end{itemize}
 
-\section{Folder map (human-friendly)}
+\section{Folder Structure}
 \begin{itemize}
   \item \texttt{scripts/}: runnable programs that fetch data and generate forecasts.
   \item \texttt{data/}: the cleaned quarterly dataset used by the models.
@@ -149,7 +149,7 @@ The latest verified run used the benchmark variable set with short runtime setti
 (\texttt{--max-origins 8 --origin-stride 2 --interval-sims 10}), producing an 8-origin,
 12-variable, 8-horizon table.
 
-\section{How to run everything (one command)}
+\section{Execution}
 Run the entire pipeline from the top folder:
 \begin{verbatim}
 ./run_all.sh
@@ -162,7 +162,7 @@ This script does three things:
   \item Exports the PD-ready subset and metadata.
 \end{enumerate}
 
-\section{What the outputs mean (plain language)}
+\section{Interpretation of Outputs}
 \begin{itemize}
   \item \textbf{Baseline} is the ``most likely'' path assuming no major shock.
   \item \textbf{Mild Adverse} is a moderate recession-style shock.
@@ -180,7 +180,7 @@ containing values for each macro variable (e.g., unemployment, inflation, house-
   \item If they need the full set of variables, use \texttt{macro\_forecast\_paths.csv}.
 \end{enumerate}
 
-\section{Known limitations (transparent)}
+\section{Known Limitations}
 \begin{itemize}
   \item This package forecasts macro variables only; it does not build or calibrate PD models.
   \item Long-run outcomes are anchored on explicit assumptions; these can be edited in \texttt{macro\_engine\_config.json}.

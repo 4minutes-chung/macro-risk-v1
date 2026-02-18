@@ -75,10 +75,3 @@
 - README uses `python3`, `run_all.sh` uses `python`.
 - No `.gitignore` baseline for OS/cache junk.
 
-
-## 11. Portfolio Positioning (GitHub)
-- Position V1 as: **"Baseline macro scenario engine with transparent assumptions and known limitations."**
-- Emphasize:
-  - clear 3-phase architecture,
-  - reproducible pipeline,
-  - explicit roadmap from V1 -> V1.1 -> V2+.
