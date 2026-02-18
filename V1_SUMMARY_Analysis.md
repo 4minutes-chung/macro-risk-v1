@@ -1,10 +1,9 @@
 # V1 Macro Engine - Summary and Improvement Blueprint
 
-## 1. What V1 Is (Scope)
-- **Type:** Macro forecasting engine (not a PD model).
+## 1. What v1 is?
+- **Type:** Macro forecasting engine.
 - **Purpose:** Generate 20-year quarterly macro scenarios as inputs for downstream PD/LGD workflows.
-- **Status:** Runnable and useful as a **prototype baseline (V1)**.
-- **Not yet:** Decision-grade production model governance.
+- **Status:** Runnable and useful as a **prototype baseline**.
 
 ## 2. V1 Architecture (3 Phases)
 1. **Q1-Q8 (1-2 years):** Statistical forecast via VAR/BVAR.
