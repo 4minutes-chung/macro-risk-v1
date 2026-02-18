@@ -9,11 +9,13 @@ Outputs:
 """
 
 import argparse
+import io
 import json
 import os
 import urllib.parse
+import urllib.request
+import time
 
-import numpy as np
 import pandas as pd
 
 
@@ -73,6 +75,29 @@ def parse_args():
         default="data/macro_panel_metadata.json",
         help="Path for metadata output.",
     )
+    parser.add_argument(
+        "--request-timeout-seconds",
+        type=float,
+        default=20.0,
+        help="HTTP timeout (seconds) per FRED request.",
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=4,
+        help="Max fetch attempts per FRED series (including the first attempt).",
+    )
+    parser.add_argument(
+        "--retry-backoff-seconds",
+        type=float,
+        default=2.0,
+        help="Base exponential backoff in seconds for retries.",
+    )
+    parser.add_argument(
+        "--disable-cached-fallback",
+        action="store_true",
+        help="Disable fallback to cached model panel when FRED fetch fails.",
+    )
     return parser.parse_args()
 
 
@@ -82,17 +107,39 @@ def ensure_parent(path: str) -> None:
         os.makedirs(parent, exist_ok=True)
 
 
-def fetch_fred_series(series_id: str) -> pd.DataFrame:
+def fetch_fred_series(
+    series_id: str,
+    timeout_seconds: float,
+    max_retries: int,
+    retry_backoff_seconds: float,
+) -> pd.DataFrame:
     url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=" + urllib.parse.quote(series_id)
-    df = pd.read_csv(url)
-    if "observation_date" not in df.columns or series_id not in df.columns:
-        raise RuntimeError(f"Unexpected FRED payload for series {series_id}")
-    out = df.rename(columns={"observation_date": "date", series_id: "value"}).copy()
-    out["date"] = pd.to_datetime(out["date"], errors="coerce")
-    out["value"] = pd.to_numeric(out["value"], errors="coerce")
-    out = out.dropna(subset=["date", "value"])
-    out["quarter_end"] = out["date"].dt.to_period("Q").dt.to_timestamp("Q")
-    return out[["quarter_end", "value"]]
+    attempts = max(1, max_retries)
+
+    last_exc = None
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout_seconds) as response:
+                payload = response.read()
+            df = pd.read_csv(io.BytesIO(payload))
+            if "observation_date" not in df.columns or series_id not in df.columns:
+                raise RuntimeError(f"Unexpected FRED payload for series {series_id}")
+            out = df.rename(columns={"observation_date": "date", series_id: "value"}).copy()
+            out["date"] = pd.to_datetime(out["date"], errors="coerce")
+            out["value"] = pd.to_numeric(out["value"], errors="coerce")
+            out = out.dropna(subset=["date", "value"])
+            out["quarter_end"] = out["date"].dt.to_period("Q").dt.to_timestamp("Q")
+            return out[["quarter_end", "value"]]
+        except Exception as exc:  # noqa: BLE001 - intentional broad catch for flaky upstream I/O.
+            last_exc = exc
+            if attempt < attempts:
+                sleep_s = retry_backoff_seconds * (2 ** (attempt - 1))
+                print(
+                    f"[WARN] FRED fetch failed for {series_id} "
+                    f"(attempt {attempt}/{attempts}): {exc}. Retrying in {sleep_s:.1f}s..."
+                )
+                time.sleep(max(0.0, sleep_s))
+    raise RuntimeError(f"Failed to fetch FRED series {series_id} after {attempts} attempts: {last_exc}")
 
 
 def aggregate_quarterly(df: pd.DataFrame, agg: str) -> pd.Series:
@@ -112,7 +159,7 @@ def transform_series(level_series: pd.Series, transform: str) -> pd.Series:
     raise ValueError(f"Unsupported transform: {transform}")
 
 
-def build_panels():
+def build_panels(request_timeout_seconds: float, max_retries: int, retry_backoff_seconds: float):
     raw_cols = {}
     model_cols = {}
     meta = {"series": []}
@@ -123,7 +170,12 @@ def build_panels():
         agg = spec["agg"]
         transform = spec["transform"]
 
-        series_df = fetch_fred_series(fred_id)
+        series_df = fetch_fred_series(
+            fred_id,
+            timeout_seconds=request_timeout_seconds,
+            max_retries=max_retries,
+            retry_backoff_seconds=retry_backoff_seconds,
+        )
         q_series = aggregate_quarterly(series_df, agg).sort_index()
         raw_cols[var_name] = q_series
         model_cols[var_name] = transform_series(q_series, transform)
@@ -148,12 +200,64 @@ def build_panels():
     meta["n_rows_model"] = int(model_panel.shape[0])
     meta["start_quarter"] = str(model_panel.index.min().date()) if len(model_panel) else None
     meta["end_quarter"] = str(model_panel.index.max().date()) if len(model_panel) else None
+    meta["fallback_used"] = False
     return raw_panel, model_panel, meta
+
+
+def load_cached_model_panel(path: str) -> pd.DataFrame:
+    if not os.path.exists(path):
+        raise RuntimeError(f"Cached model panel not found at {path}")
+
+    df = pd.read_csv(path)
+    if "quarter_end" not in df.columns:
+        raise RuntimeError("Cached model panel missing 'quarter_end' column.")
+
+    df["quarter_end"] = pd.to_datetime(df["quarter_end"], errors="coerce")
+    df = df.dropna(subset=["quarter_end"]).set_index("quarter_end").sort_index()
+
+    required_vars = [spec["var"] for spec in SERIES_SPECS]
+    missing = [col for col in required_vars if col not in df.columns]
+    if missing:
+        raise RuntimeError(f"Cached model panel missing columns: {missing}")
+
+    out = df[required_vars].dropna(axis=0, how="any").copy()
+    if out.shape[0] < 80:
+        raise RuntimeError(
+            f"Cached model panel too short: {out.shape[0]} rows (need >= 80)."
+        )
+    return out
 
 
 def main():
     args = parse_args()
-    raw_panel, model_panel, meta = build_panels()
+    fallback_enabled = not args.disable_cached_fallback
+
+    try:
+        raw_panel, model_panel, meta = build_panels(
+            request_timeout_seconds=args.request_timeout_seconds,
+            max_retries=args.max_retries,
+            retry_backoff_seconds=args.retry_backoff_seconds,
+        )
+    except Exception as exc:  # noqa: BLE001 - failure path handled with cached fallback.
+        if not fallback_enabled:
+            raise
+        model_panel = load_cached_model_panel(args.model_output)
+        raw_panel = model_panel.copy()
+        meta = {
+            "series": [],
+            "n_variables": len(SERIES_SPECS),
+            "n_rows_model": int(model_panel.shape[0]),
+            "start_quarter": str(model_panel.index.min().date()) if len(model_panel) else None,
+            "end_quarter": str(model_panel.index.max().date()) if len(model_panel) else None,
+            "fallback_used": True,
+            "fallback_reason": str(exc),
+            "fallback_source_file": args.model_output,
+        }
+        print(
+            "[WARN] Falling back to cached model panel at "
+            f"{args.model_output} because live FRED pull failed: {exc}"
+        )
+
     if model_panel.shape[0] < 80:
         raise RuntimeError(
             f"Model panel too short after alignment: {model_panel.shape[0]} rows (need >= 80)."
@@ -171,4 +275,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
